@@ -8,7 +8,7 @@ def run_batch(matches=100):
     env = make("cabt", debug=True)
     
     agent_1 = "lucario_v2/main.py"
-    agent_2 = "opponents/iono/main.py"  # You can change this to pit two different versions against each other!
+    agent_2 = "opponents/lucario_base/main.py"  # You can change this to pit two different versions against each other!
     
     wins_agent_1 = 0
     wins_agent_2 = 0

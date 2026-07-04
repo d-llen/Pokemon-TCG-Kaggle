@@ -440,21 +440,29 @@ def agent(obs_dict: dict) -> list[int]:
         elif o.type == OptionType.PLAY:
             card = get_card(obs, AreaType.HAND, o.index, my_index)
             data = card_table[card.id]
+            
+            # --- POKEMON LOGIC ---
             if data.cardType == CardType.POKEMON:
                 score = 20000
+                # Prevent bench clogging with too many rocks
                 if card.id == Lunatone or card.id == Solrock:
                     if field_counts[card.id] >= 1:
                         score = -1
+                # Prevent bench clogging with too many Riolus
                 elif card.id == Riolu:
                     if field_counts[card.id] + field_counts[Mega_Lucario_ex] >= 2:
                         score = -1
+            
+            # --- TRAINER / STADIUM LOGIC ---
             else:
                 score = 10000
+                
                 if card.id == Switch:
                     if plan.attacker <= 0:
                         score = -1
                     else:
                         score = 6000
+                        
                 elif card.id == Premium_Power_Pro:
                     if state.supporterPlayed and plan.remain_hp <= 0:
                         score = -1
@@ -465,18 +473,36 @@ def agent(obs_dict: dict) -> list[int]:
                             score = -1
                     else:
                         score = 5000
+                        
+                # --- UPGRADE: LETHAL BOSS'S ORDERS ---
                 elif card.id == Boss_Orders:
+                    # We only want to play Boss if we can actively disrupt their bench
                     if plan.target >= 1:
-                        score = 3200
+                        score = 9000  # High priority to hunt their bench!
                     else:
                         score = -1
+                        
+                # --- DRAW ENGINES ---
+                # Prevent decking out! Don't draw if deck is almost empty.
                 elif card.id == Carmine:
-                    score = 3000
+                    if my_state.deckCount <= 5:
+                        score = -1 # Stop drawing!
+                    else:
+                        score = 3000
                 elif card.id == Lillie_Determination:
-                    score = 3100
-                elif card.id == Gravity_Mountain:
-                    if stadium_id == 0:
+                    if my_state.deckCount <= 5:
                         score = -1
+                    else:
+                        score = 3100
+                        
+                # --- UPGRADE: STADIUM CRUSHER ---
+                elif card.id == Gravity_Mountain:
+                    # 0 means no stadium. If our own stadium is already in play, don't overwrite it.
+                    if stadium_id == 0 or stadium_id == Gravity_Mountain:
+                        score = -1
+                    else:
+                        # An OPPONENT'S stadium is in play. SMASH IT!
+                        score = 9500
         elif o.type == OptionType.ATTACH:
             card = get_card(obs, AreaType.HAND, o.index, my_index)
             pokemon = get_card(obs, o.inPlayArea, o.inPlayIndex, my_index)
@@ -506,10 +532,10 @@ def agent(obs_dict: dict) -> list[int]:
             else:
                 score = 30000
         elif o.type == OptionType.RETREAT:
-            if plan.attacker >= 1:
-                score = 2000
-            else:
-                score = -1
+                        if plan.attacker >= 1:
+                            score = 2000
+                        else:
+                            score = -1
         elif o.type == OptionType.ATTACK:
             score = 1000
             if plan.attack_index == 1:
