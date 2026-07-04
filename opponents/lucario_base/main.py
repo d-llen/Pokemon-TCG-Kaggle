@@ -318,35 +318,29 @@ def agent(obs_dict: dict) -> list[int]:
     def energy_score(pokemon: Pokemon, active: bool) -> int:
         energy_count = len(pokemon.energies)
         score = 8000
-        
-        # --- 1. SURVIVABILITY CHECK (The "Sinking Ship" Rule) ---
-        # If this Pokemon is severely damaged (60 HP or less), it will 
-        # likely die next turn. Do NOT attach your limited energy to it!
-        if pokemon.hp <= 60:
-            score -= 5000 
-        # --------------------------------------------------------
-
         if active:
             score += 10
-            
-        # --- 2. ROLE PRIORITY ---
-        # Heavily prioritize attaching energy to our main win conditions.
-        if pokemon.id == Mega_Lucario_ex or pokemon.id == Riolu:
-            score += 200
-            if energy_count < 2:
-                score += 500 # Urgent: Get Lucario ready to attack!
-        
-        # Secondary attackers get medium priority.
-        elif pokemon.id == Hariyama or pokemon.id == Makuhita:
-            score += 100
+        if pokemon.id == Makuhita or pokemon.id == Hariyama:
+            if pokemon.id == Hariyama:
+                score += 1
             if energy_count < 3:
-                score += 300
-                
-        # Support Pokemon should basically NEVER get energy.
-        elif pokemon.id == Lunatone or pokemon.id == Solrock:
-            score -= 2000 # Massive penalty. Stop powering up the rocks!
-        # ------------------------
-            
+                score += 100
+            if attacker2:
+                score -= 50
+        elif pokemon.id == Lunatone:
+            score -= 100
+        elif pokemon.id == Solrock:
+            if energy_count < 1:
+                score += 20
+            else:
+                score -= 100
+        elif pokemon.id == Riolu or pokemon.id == Mega_Lucario_ex:
+            if pokemon.id == Mega_Lucario_ex:
+                score += 1
+            if energy_count < 2:
+                score += 100
+            if attacker1:
+                score -= 50
         return score
 
     # Iterate over every possible option and assign a heuristic score.

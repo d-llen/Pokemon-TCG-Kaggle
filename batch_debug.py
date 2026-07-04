@@ -5,10 +5,10 @@ def run_batch(matches=100):
     print(f"Initializing engine for {matches} matches...")
     
     # We turn debug=False so it doesn't spam the console for 100 games
-    env = make("cabt", debug=False)
+    env = make("cabt", debug=True)
     
     agent_1 = "lucario_v2/main.py"
-    agent_2 = "opponents/dragapult/main.py"  # You can change this to pit two different versions against each other!
+    agent_2 = "opponents/iono/main.py"  # You can change this to pit two different versions against each other!
     
     wins_agent_1 = 0
     wins_agent_2 = 0
@@ -21,6 +21,7 @@ def run_batch(matches=100):
         if i % 2 != 0:
             # Odd matches: Agent 1 is Player 0
             steps = env.run([agent_1, agent_2])
+            
             reward_p0 = steps[-1][0]["reward"]
             reward_p1 = steps[-1][1]["reward"]
             
@@ -55,4 +56,4 @@ def run_batch(matches=100):
 
 if __name__ == "__main__":
     # You can change the number of matches here
-    run_batch(matches=250)
+    run_batch(matches=1)

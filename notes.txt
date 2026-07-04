@@ -1,3 +1,5 @@
 -built simulator
 -started with lucario deck
 -noticed bias to agent 1 over 100 and 500 games, updated code to so both agents are passed first to code same amnt of times
+-tried editing target selection based on prize cards, no benefit. trying fixing resource management
+-added other 3 template decks to test against. added a script which battles all 4 base bots
